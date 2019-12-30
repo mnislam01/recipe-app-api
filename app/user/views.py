@@ -19,7 +19,7 @@ class CreateTokenView(views.ObtainAuthToken):
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
 
 
-class UserProfileView(generics.RetrieveUpdateAPIView):
+class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
     """
     GET and PATCH user profile
     """

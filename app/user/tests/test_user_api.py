@@ -135,6 +135,13 @@ class PublicUsersApiTest(TestCase):
         res = self.client.get(PROFILE_URL)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
+    def test_delete_user_unauthorized(self):
+        """
+        Test authentication is required for user
+        """
+        res = self.client.delete(PROFILE_URL)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
 
 class PrivateUserApiTests(TestCase):
     """
@@ -185,3 +192,16 @@ class PrivateUserApiTests(TestCase):
         self.assertEqual(self.user.name, payload["name"])
         self.assertEqual(self.user.email, payload["email"])
         self.assertTrue(self.user.check_password(payload["password"]))
+
+    def test_delete_user_profile_success(self):
+        """
+        """
+        res = self.client.delete(PROFILE_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        user_found = get_user_model().objects.filter(**{
+                    "email": "nazrul@localmachine.com",
+                    "name": "Test User"
+                }
+            )
+        self.assertEqual(user_found.count(), 0)
