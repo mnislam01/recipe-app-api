@@ -1,6 +1,6 @@
 from rest_framework.authtoken import views
 from user import serializers
-from rest_framework import generics
+from rest_framework import generics, authentication, permissions
 from rest_framework.settings import api_settings
 
 
@@ -17,3 +17,15 @@ class CreateTokenView(views.ObtainAuthToken):
     """
     serializer_class = serializers.AuthTokenSerializer
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
+
+
+class UserProfileView(generics.RetrieveUpdateAPIView):
+    """
+    GET and PATCH user profile
+    """
+    serializer_class = serializers.UserSerializer
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
