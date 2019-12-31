@@ -68,3 +68,63 @@ class PrivateTagsApiTest(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 1)
         self.assertEqual(res.data[0].get("name"), tag.name)
+
+    def test_tags_create_successful(self):
+        """
+        Test creating a new tag
+        """
+        payload = {
+            "name": "Test Tag"
+        }
+        res = self.client.post(TAGS_URL, payload)
+        tags = Tag.objects.filter(
+            user=self.user,
+            **payload
+        )
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(tags.exists())
+        
+    def test_tags_create_invalid(self):
+        """
+        Test creating a invalid payload
+        """
+        payload = {
+            "name": ""
+        }
+        res = self.client.post(TAGS_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    # def test_tags_update_successful(self):
+    #     """
+    #     Test creating a invalid payload
+    #     """
+    #     tag = Tag.objects.create(user=self.user, name="Meaty")
+
+    #     payload = {
+    #         "name": "Beafy"
+    #     }
+
+    #     res = self.client.patch(TAGS_URL, payload)
+
+    #     tag.refresh_from_db()
+
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(res.data.get("name"), payload["name"])
+
+
+    # def test_tags_delete_successful(self):
+    #     """
+    #     Test creating a invalid payload
+    #     """
+    #     tag = Tag.objects.create(user=self.user, name="Meaty")
+
+    #     payload = {
+    #         "name": "Beafy"
+    #     }
+
+    #     res = self.client.patch(TAGS_URL, payload)
+
+    #     tag.refresh_from_db()
+
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(res.data.get("name"), payload["name"])

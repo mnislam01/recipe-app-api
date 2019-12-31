@@ -7,7 +7,11 @@ from core import models
 from recipe import serializers
 
 
-class TagViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+class TagViewSet(viewsets.GenericViewSet,
+                mixins.ListModelMixin,
+                mixins.CreateModelMixin
+                ):
+
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.TagSerializer
