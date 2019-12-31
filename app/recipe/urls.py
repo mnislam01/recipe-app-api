@@ -4,7 +4,8 @@ from rest_framework.routers import DefaultRouter
 from recipe import views
 
 router = DefaultRouter()
-router.register('tags', views.TagViewSet)
+router.register("tags", views.TagViewSet)
+router.register("ingradient", views.IngradientViewSet)
 
 app_name = "recipe"
 
