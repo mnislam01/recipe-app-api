@@ -7,33 +7,37 @@ from core import models
 from recipe import serializers
 
 
-class TagViewSet(viewsets.GenericViewSet,
-                 mixins.ListModelMixin,
-                 mixins.CreateModelMixin):
+class BaseGenericViewSet(viewsets.GenericViewSet,
+                         mixins.ListModelMixin,
+                         mixins.CreateModelMixin):
 
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
+    order_by = "-name"
+
+    def get_queryset(self):
+        """
+        Return objects for authenticated user only
+        """
+        return self.queryset.filter(user=self.request.user).order_by(
+                                                        self.order_by
+                                                    )
+
+
+class TagViewSet(BaseGenericViewSet):
+
     serializer_class = serializers.TagSerializer
     queryset = models.Tag.objects.all()
 
-    def get_queryset(self):
-        """
-        Return objects for authenticated user only
-        """
-        return self.queryset.filter(user=self.request.user).order_by("-name")
 
+class IngradientViewSet(BaseGenericViewSet):
 
-class IngradientViewSet(viewsets.GenericViewSet,
-                        mixins.ListModelMixin,
-                        mixins.CreateModelMixin):
-
-    authentication_classes = [authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.IngredientSerializer
     queryset = models.Ingredient.objects.all()
 
-    def get_queryset(self):
-        """
-        Return objects for authenticated user only
-        """
-        return self.queryset.filter(user=self.request.user).order_by("-name")
+
+class RecipeViewSet(BaseGenericViewSet):
+
+    serializer_class = serializers.RecipeSerializer
+    queryset = models.Recipe.objects.all()
+    order_by = "-id"
