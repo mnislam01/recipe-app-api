@@ -43,6 +43,30 @@ class RecipeViewSet(BaseGenericViewSet):
     queryset = models.Recipe.objects.all()
     order_by = "-id"
 
+    def _str_to_int(self, string):
+        return [int(item) for item in string.split(",")]
+
+    def get_queryset(self):
+        """
+        Return objects for authenticated user only
+        """
+        tags = self.request.query_params.get("tags")
+        ingredients = self.request.query_params.get("ingredients")
+        queryset = self.queryset
+
+        if tags:
+            queryset = queryset.filter(
+                tags__id__in=self._str_to_int(tags)
+            )
+        if ingredients:
+            queryset = queryset.filter(
+                ingredients__id__in=self._str_to_int(ingredients)
+            )
+
+        return queryset.filter(user=self.request.user).order_by(
+                                                        self.order_by
+                                                    )
+
     @action(methods=["POST"], detail=True, url_path="upload-image")
     def upload_image(self, request, pk=None):
         """

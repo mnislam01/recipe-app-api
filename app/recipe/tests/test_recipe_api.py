@@ -8,10 +8,9 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import Recipe
+from core.models import Recipe, Tag, Ingredient
 
 from recipe.serializers import RecipeSerializer
-
 
 RECIPE_URL = reverse("recipe:recipe-list")
 
@@ -42,6 +41,30 @@ def sample_recipe(user, **params):
     defaults.update(params)
 
     return Recipe.objects.create(user=user, **defaults)
+
+
+def sample_tag(user, **params):
+    """
+    Creates a smaple tag object
+    """
+    defaults = {
+        "name": "Sample Tag"
+    }
+    defaults.update(params)
+
+    return Tag.objects.create(user=user, **defaults)
+
+
+def sample_ingredient(user, **params):
+    """
+    Creates a smaple ingredient object
+    """
+    defaults = {
+        "name": "Sample ingredient"
+    }
+    defaults.update(params)
+
+    return Ingredient.objects.create(user=user, **defaults)
 
 
 class PublicRecipeApiTest(TestCase):
@@ -160,3 +183,41 @@ class RecipeImageUploadTests(TestCase):
         res = self.client.post(url, {"image": "NoImage"}, format="multipart")
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_filter_recipies_by_tags(self):
+        """
+        Test filtering recipies by tags
+        """
+        recipe1 = sample_recipe(user=self.user, title="Thai vegetable curry")
+        recipe2 = sample_recipe(user=self.user, title="Auvergine with tahini")
+        tag1 = sample_tag(user=self.user, name="vegan")
+        tag2 = sample_tag(user=self.user, name="vegetarian")
+        recipe1.tags.add(tag1)
+        recipe2.tags.add(tag2)
+
+        res = self.client.get(
+            RECIPE_URL,
+            {"tags": f"{tag1.id}, {tag2.id}"}
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 2)
+
+    def test_filter_recipies_by_ingredients(self):
+        """
+        Test filtering recipies by Ingrediants
+        """
+        recipe1 = sample_recipe(user=self.user, title="Posh beans on toast")
+        recipe2 = sample_recipe(user=self.user, title="Chicken Cachiatore")
+        ingr1 = sample_ingredient(user=self.user, name="Feta cheese")
+        ingr2 = sample_ingredient(user=self.user, name="Chicken")
+        recipe1.ingredients.add(ingr1)
+        recipe2.ingredients.add(ingr2)
+
+        res = self.client.get(
+            RECIPE_URL,
+            {"ingredients": f"{ingr1.id}, {ingr2.id}"}
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 2)
