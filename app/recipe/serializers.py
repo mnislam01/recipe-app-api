@@ -68,3 +68,13 @@ class RecipeSerializer(serializers.ModelSerializer):
         user = self.context.get("request").user
         validated_data["user"] = user
         return super().create(validated_data)
+
+
+class RecipeImageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Recipe
+        fields = [
+            "id", "image"
+        ]
+        read_only_fields = ["id"]

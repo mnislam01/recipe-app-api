@@ -1,7 +1,8 @@
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets, mixins, status
 from rest_framework import authentication
 from rest_framework import permissions
-
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from core import models
 
 from recipe import serializers
@@ -41,3 +42,23 @@ class RecipeViewSet(BaseGenericViewSet):
     serializer_class = serializers.RecipeSerializer
     queryset = models.Recipe.objects.all()
     order_by = "-id"
+
+    @action(methods=["POST"], detail=True, url_path="upload-image")
+    def upload_image(self, request, pk=None):
+        """
+        Upload an image to recipe
+        """
+
+        recipe = self.get_object()
+        serializer = serializers.RecipeImageSerializer(
+            recipe,
+            data=request.data
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )

@@ -17,6 +17,6 @@ COPY ./app /app
 RUN mkdir -p /vol/app/media
 RUN mkdir -p /vol/app/static
 RUN adduser -D nazrul
-RUN chown -R root:root /vol/
+RUN chown -R nazrul:nazrul /vol/
 RUN chmod -R 755 /vol/app
 USER nazrul
